@@ -80,36 +80,48 @@
 
 ## 5. Use Case Diagram
 
-แผนภาพ Use Case แสดงความสัมพันธ์ระหว่างผู้ใช้งาน (Actors) และฟังก์ชันการทำงานหลักของระบบ (Use Cases) โดยปรับปรุงให้รองรับระบบสมัครสมาชิกและการอนุมัติ
+แผนภาพ Use Case แสดงความสัมพันธ์ระหว่างผู้ใช้งาน (Actors) และขอบเขตการทำงานของระบบ (System Boundary) โดยมีการแสดงเงื่อนไขการสมัครสมาชิกและการอนุมัติสิทธิ์ก่อนเข้าสู่ระบบอย่างชัดเจน
 
 ```mermaid
 flowchart LR
     %% Actors
-    Tenant((👤 ผู้เช่า))
-    Admin((🧑‍💼 แอดมิน))
+    Tenant((👤 ผู้เช่า / ลูกบ้าน))
+    Admin((🧑‍💼 แอดมิน / ผู้ดูแล))
 
     %% System Boundary
     subgraph DormBill [ระบบจัดการหอพัก DormBill]
         direction TB
-        UC1([สมัครสมาชิก ระบุห้องพัก])
+        
+        %% Tenant Use Cases
+        UC1([สมัครสมาชิก <br font-size:9px>กรอก Email, Username, PW, เลขห้อง])
         UC2([เข้าสู่ระบบ Login])
         UC3([ดูรายละเอียดบิลและวันกำหนดชำระ])
         UC4([อัปโหลดสลิปแจ้งชำระเงิน])
         
+        %% Admin Use Cases
         UC5([ตรวจสอบและอนุมัติบัญชีลูกบ้านใหม่])
         UC6([จัดการตั้งค่าและเรทราคาหอพัก])
         UC7([บันทึกเลขมิเตอร์น้ำ-ไฟประจำเดือน])
         UC8([ตรวจสอบสลิปและยืนยันการชำระเงิน])
+
+        %% Business Logic Dependencies (เส้นประแสดงเงื่อนไข)
+        UC1 -.->|1. ส่งคำขอสร้างบัญชี <br>สถานะ Pending| UC5
+        UC5 -.->|2. หากเป็นลูกบ้านจริง <br>กด Approve ให้มีสิทธิ์| UC2
     end
 
-    %% Relationships
+    %% Relationships for Tenant
     Tenant --- UC1
     Tenant --- UC2
     Tenant --- UC3
     Tenant --- UC4
 
+    %% Relationships for Admin
     Admin --- UC5
     Admin --- UC6
     Admin --- UC7
     Admin --- UC8
-```
+
+    %% Styling for better visualization
+    style Tenant fill:#fff5f5,stroke:#ff7675,stroke-width:2px
+    style Admin fill:#f5f6fa,stroke:#74b9ff,stroke-width:2px
+    style DormBill fill:#ffffff,stroke:#2d3436,stroke-width:2px
