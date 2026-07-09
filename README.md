@@ -78,9 +78,9 @@
 
 ---
 
-## 5. Use Case Diagram
+## 5. Use Case Diagram (แยกฝั่งระบบ)
 
-แผนภาพ Use Case แสดงความสัมพันธ์ระหว่างผู้ใช้งาน (Actors) และขอบเขตการทำงานของระบบ (System Boundary) โดยมีการแสดงเงื่อนไขการสมัครสมาชิกและการอนุมัติสิทธิ์ก่อนเข้าสู่ระบบอย่างชัดเจน
+แผนภาพ Use Case ที่ทำการแยกขอบเขตการทำงาน (Subsystems) ระหว่างฝั่งผู้เช่าและฝั่งแอดมินออกจากกันอย่างชัดเจน เพื่อให้ง่ายต่อการนำไปออกแบบสิทธิ์การเข้าใช้งานระบบ (Role-Based Access Control)
 
 ```mermaid
 flowchart LR
@@ -88,23 +88,29 @@ flowchart LR
     Tenant((👤 ผู้เช่า / ลูกบ้าน))
     Admin((🧑‍💼 แอดมิน / ผู้ดูแล))
 
-    %% System Boundary
+    %% Main System Boundary
     subgraph DormBill [ระบบจัดการหอพัก DormBill]
         direction TB
         
-        %% Tenant Use Cases
-        UC1([สมัครสมาชิก <br font-size:9px>กรอก Email, Username, PW, เลขห้อง])
-        UC2([เข้าสู่ระบบ Login])
-        UC3([ดูรายละเอียดบิลและวันกำหนดชำระ])
-        UC4([อัปโหลดสลิปแจ้งชำระเงิน])
+        %% Subsystem: Tenant Side
+        subgraph Tenant_System [📦 ขอบเขตระบบฝั่งผู้เช่า]
+            direction TB
+            UC1([สมัครสมาชิก <br font-size:9px>กรอก Email, Username, PW, เลขห้อง])
+            UC2([เข้าสู่ระบบ Login])
+            UC3([ดูรายละเอียดบิลและวันกำหนดชำระ])
+            UC4([อัปโหลดสลิปแจ้งชำระเงิน])
+        end
         
-        %% Admin Use Cases
-        UC5([ตรวจสอบและอนุมัติบัญชีลูกบ้านใหม่])
-        UC6([จัดการตั้งค่าและเรทราคาหอพัก])
-        UC7([บันทึกเลขมิเตอร์น้ำ-ไฟประจำเดือน])
-        UC8([ตรวจสอบสลิปและยืนยันการชำระเงิน])
+        %% Subsystem: Admin Side
+        subgraph Admin_System [📦 ขอบเขตระบบฝั่งแอดมิน]
+            direction TB
+            UC5([ตรวจสอบและอนุมัติบัญชีลูกบ้านใหม่])
+            UC6([จัดการตั้งค่าและเรทราคาหอพัก])
+            UC7([บันทึกเลขมิเตอร์น้ำ-ไฟประจำเดือน])
+            UC8([ตรวจสอบสลิปและยืนยันการชำระเงิน])
+        end
 
-        %% Business Logic Dependencies (เส้นประแสดงเงื่อนไข)
+        %% Cross-boundary Logic Dependencies (เส้นประแสดงเงื่อนไขข้ามฝั่ง)
         UC1 -.->|1. ส่งคำขอสร้างบัญชี <br>สถานะ Pending| UC5
         UC5 -.->|2. หากเป็นลูกบ้านจริง <br>กด Approve ให้มีสิทธิ์| UC2
     end
@@ -121,7 +127,9 @@ flowchart LR
     Admin --- UC7
     Admin --- UC8
 
-    %% Styling for better visualization
+    %% Styling for visual separation
     style Tenant fill:#fff5f5,stroke:#ff7675,stroke-width:2px
     style Admin fill:#f5f6fa,stroke:#74b9ff,stroke-width:2px
     style DormBill fill:#ffffff,stroke:#2d3436,stroke-width:2px
+    style Tenant_System fill:#fff9f9,stroke:#ffb8b8,stroke-width:1px,stroke-dasharray: 3 3
+    style Admin_System fill:#f0f5ff,stroke:#a3cbff,stroke-width:1px,stroke-dasharray: 3 3
