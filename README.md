@@ -80,49 +80,36 @@
 
 ## 5. Use Case Diagram
 
-แผนภาพ Use Case ที่ทำการแยกขอบเขตการทำงาน (Subsystems) ระหว่างฝั่งผู้เช่าและฝั่งแอดมินออกจากกันอย่างชัดเจน
+แผนภาพ Use Case แสดงขอบเขตการทำงานของระบบ โดยผู้เช่าจะใช้งานผ่านฝั่งซ้าย และแอดมินจะจัดการระบบจากฝั่งขวา
 
 ```mermaid
 flowchart LR
-    %% Actors
-    Tenant((ผู้เช่า))
-    Admin((แอดมิน))
+    %% กำหนด Actors แบบวงกลมให้คล้าย Stick figure
+    Tenant(("👤 ผู้เช่า"))
+    Admin(("🧑‍💼 แอดมิน"))
 
-    %% Main System Boundary
+    %% กำหนด System Boundary (กรอบระบบตรงกลาง)
     subgraph DormBill [ระบบจัดการหอพัก DormBill]
         direction TB
+        UC1([สมัครสมาชิก])
+        UC2([เข้าสู่ระบบ Login])
+        UC3([ดูรายละเอียดบิลและวันกำหนดชำระ])
+        UC4([อัปโหลดสลิปแจ้งชำระเงิน])
         
-        %% Subsystem: Tenant Side
-        subgraph Tenant_System [ขอบเขตระบบฝั่งผู้เช่า]
-            direction TB
-            UC1([สมัครสมาชิก])
-            UC2([เข้าสู่ระบบ Login])
-            UC3([ดูรายละเอียดบิลและวันกำหนดชำระ])
-            UC4([อัปโหลดสลิปแจ้งชำระเงิน])
-        end
-        
-        %% Subsystem: Admin Side
-        subgraph Admin_System [ขอบเขตระบบฝั่งแอดมิน]
-            direction TB
-            UC5([ตรวจสอบและอนุมัติบัญชี])
-            UC6([จัดการตั้งค่าและเรทราคาหอพัก])
-            UC7([บันทึกเลขมิเตอร์น้ำ-ไฟ])
-            UC8([ตรวจสอบและยืนยันการชำระเงิน])
-        end
-
-        %% Cross-boundary Logic Dependencies (เส้นประแสดงเงื่อนไขข้ามฝั่ง)
-        UC1 -.->|1. ส่งคำขอสร้างบัญชี รอตรวจสอบ| UC5
-        UC5 -.->|2. หากเป็นลูกบ้านจริง กด Approve| UC2
+        UC5([ตรวจสอบและอนุมัติบัญชี])
+        UC6([จัดการตั้งค่าและเรทราคาหอพัก])
+        UC7([บันทึกเลขมิเตอร์น้ำ-ไฟ])
+        UC8([ตรวจสอบและยืนยันการชำระเงิน])
     end
 
-    %% Relationships for Tenant
+    %% ลากเส้นเชื่อมฝั่งซ้าย (Actor -> Use Case)
     Tenant --- UC1
     Tenant --- UC2
     Tenant --- UC3
     Tenant --- UC4
 
-    %% Relationships for Admin
-    Admin --- UC5
-    Admin --- UC6
-    Admin --- UC7
-    Admin --- UC8
+    %% ลากเส้นเชื่อมฝั่งขวา (Use Case -> Actor) เพื่อดันให้แอดมินไปอยู่ขวาสุด
+    UC5 --- Admin
+    UC6 --- Admin
+    UC7 --- Admin
+    UC8 --- Admin
